@@ -1,20 +1,23 @@
 language: go
 
-dist: trusty
 sudo: false
+
 install: true
 
 go:
-- 1.11.x
-
-os:
-- linux
+  - 1.11.x
 
 env:
-- GO111MODULE=on
+  - GO111MODULE=on
 
+notifications:
+  email: false
+
+before_script:
+# - go install -mod vendor github.com/golangci/golangci-lint/cmd/golangci-lint
 
 script:
-- go build
-- go test ./...
-- go test ./... -bench .
+  - go build
+# - golangci-lint run
+  - go test ./...
+  - go test ./... -bench .

@@ -27,8 +27,8 @@ type EventBus interface {
 	//SetCacheValue sets the value associated with the specified key
 	SetCacheValue(key string, value interface{})
 
-	//GetEventBusId returns the unique identifier for the eventbus
-	GetEventBusId() string
+	//GetEventBusID returns the unique identifier for the eventbus
+	GetEventBusID() string
 }
 
 //Message a struct which contains the components needed to send a message via the EventBus
