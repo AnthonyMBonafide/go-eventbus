@@ -2,7 +2,7 @@ package eventbus
 
 //MessageListener an alias type for a function which accepts a string
 type MessageListener struct {
-	Id string
+	ID      string
 	Handler func(message Message)
 }
 
@@ -13,10 +13,10 @@ type EventBus interface {
 
 	//CreateConsumer registers the provided lister with the specified topicId.
 	//The listener will be invoked with messages received on the topicId
-	CreateConsumer(topicId string, listener MessageListener)
+	CreateConsumer(topicID string, listener MessageListener)
 
 	//DeleteConsumer removes a registered consumer and its associated MessageHandler from the topic.
-	DeleteConsumer(topicId string, messageListenerId string)
+	DeleteConsumer(topicID string, messageListenerID string)
 
 	//SendMessage publishes the message to all consumers registered to the topicId
 	SendMessage(message Message)
@@ -33,12 +33,12 @@ type EventBus interface {
 
 //Message a struct which contains the components needed to send a message via the EventBus
 type Message struct {
-	//MessageId the unique identifier for the message
-	MessageId string
+	//MessageID the unique identifier for the message
+	MessageID string
 
 	//Topic the targeted topic for the message
-	Topic     string
+	Topic string
 
 	//Payload the payload of the message
-	Payload   string
+	Payload string
 }

@@ -21,7 +21,7 @@ func TestCache(t *testing.T) {
 func TestCacheConcurrency(t *testing.T) {
 	eb := New()
 
-	for i := 0 ; i<=200; i++{
+	for i := 0; i <= 200; i++ {
 		go eb.SetCacheValue("integer", 1)
 	}
 }
@@ -30,15 +30,15 @@ func TestMessageHandler(t *testing.T) {
 	eb := New()
 	done := make(chan struct{})
 	eb.CreateConsumer("TestTopic", eventbus.MessageListener{
-		Id: "test-listener",
+		ID: "test-listener",
 		Handler: func(message eventbus.Message) {
-			log.Printf("Handler recieved message '%s' with payload '%s'", message.MessageId, message.Payload)
+			log.Printf("Handler received message '%s' with payload '%s'", message.MessageID, message.Payload)
 			close(done)
 		},
 	})
 
 	eb.SendMessage(eventbus.Message{
-		MessageId: "TestMessage",
+		MessageID: "TestMessage",
 		Topic:     "TestTopic",
 		Payload:   "TestPayload",
 	})
@@ -59,9 +59,9 @@ func TestRemoveConsumer(t *testing.T) {
 	eb := New()
 	done := make(chan struct{})
 	eb.CreateConsumer("TestTopic", eventbus.MessageListener{
-		Id: "test-listener",
+		ID: "test-listener",
 		Handler: func(message eventbus.Message) {
-			log.Printf("Handler recieved message '%s' with payload '%s'", message.MessageId, message.Payload)
+			log.Printf("Handler received message '%s' with payload '%s'", message.MessageID, message.Payload)
 			close(done)
 		},
 	})
@@ -69,7 +69,7 @@ func TestRemoveConsumer(t *testing.T) {
 	eb.DeleteConsumer("TestTopic", "test-listener")
 
 	eb.SendMessage(eventbus.Message{
-		MessageId: "TestMessage",
+		MessageID: "TestMessage",
 		Topic:     "TestTopic",
 		Payload:   "TestPayload",
 	})
@@ -91,7 +91,7 @@ func BenchmarkInMemoryEventBus_CreateConsumer(b *testing.B) {
 	eb := New()
 	for i := 0; i < b.N; i++ {
 		eb.CreateConsumer("TestingTopic", eventbus.MessageListener{
-			Id:      fmt.Sprintf("TestConsumer#%d", i),
+			ID:      fmt.Sprintf("TestConsumer#%d", i),
 			Handler: func(message eventbus.Message) {},
 		})
 	}
@@ -101,7 +101,7 @@ func BenchmarkInMemoryEventBus_DeleteConsumer(b *testing.B) {
 	eb := New()
 	for i := 0; i < b.N; i++ {
 		eb.CreateConsumer("TestingTopic", eventbus.MessageListener{
-			Id:      fmt.Sprintf("TestConsumer#%d", i),
+			ID:      fmt.Sprintf("TestConsumer#%d", i),
 			Handler: func(message eventbus.Message) {},
 		})
 	}
@@ -119,7 +119,7 @@ func BenchmarkInMemoryEventBus_SendMessage(b *testing.B) {
 	eb := New()
 	for i := 0; i < b.N; i++ {
 		eb.CreateConsumer("TestingTopic", eventbus.MessageListener{
-			Id:      fmt.Sprintf("TestConsumer#%d", i),
+			ID:      fmt.Sprintf("TestConsumer#%d", i),
 			Handler: func(message eventbus.Message) {},
 		})
 	}
@@ -129,7 +129,7 @@ func BenchmarkInMemoryEventBus_SendMessage(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		eb.SendMessage(eventbus.Message{
 			Topic:     fmt.Sprintf("TestConsumer#%d", i),
-			MessageId: fmt.Sprintf("Message#%d", i),
+			MessageID: fmt.Sprintf("Message#%d", i),
 			Payload:   "Message",
 		})
 	}
@@ -161,7 +161,7 @@ func BenchmarkInMemoryEventBus_SetCacheValueLock(b *testing.B) {
 	eb := New()
 	b.ReportAllocs()
 	b.RunParallel(func(pb *testing.PB) {
-		for ; pb.Next(); {
+		for pb.Next() {
 			eb.SetCacheValue(fmt.Sprintf("CacheKey#%d", rand.Int()), fmt.Sprintf("CacheValue#%d", rand.Int()))
 		}
 	})
@@ -177,7 +177,7 @@ func BenchmarkInMemoryEventBus_GetCacheValueLock(b *testing.B) {
 	b.ReportAllocs()
 
 	b.RunParallel(func(pb *testing.PB) {
-		for ; pb.Next(); {
+		for pb.Next() {
 			eb.GetCacheValue(fmt.Sprintf("CacheKey#%d", rand.Intn(b.N)))
 		}
 	})
