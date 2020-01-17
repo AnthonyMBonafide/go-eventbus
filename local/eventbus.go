@@ -1,8 +1,10 @@
 package local
 
 import (
-	"github.com/AnthonyMBonafide/go-eventbus"
+	"math/rand"
 	"sync"
+
+	"github.com/AnthonyMBonafide/go-eventbus"
 )
 
 // Local implementation of EventBus which uses no networking resources
@@ -25,17 +27,18 @@ func New() eventbus.EventBus {
 
 // CreateConsumer creates and registers a consumer which reacts to messages published to the same instance of
 // InMemoryEventBus
-func (imeb InMemoryEventBus) CreateConsumer(topicID string, listener eventbus.MessageListener) {
+func (imeb InMemoryEventBus) CreateConsumer(topicID string, listener eventbus.MessageListener) error {
 	imeb.topicRegistryMutex.Lock()
 	defer imeb.topicRegistryMutex.Unlock()
 
 	n := append(imeb.topicRegistry[topicID], listener)
 	imeb.topicRegistry[topicID] = n
+	return nil
 }
 
-// DeleteConsumer removes the specified consumer from recieving messages published to the same instance of
+// DeleteConsumer removes the specified consumer from receiving messages published to the same instance of
 // InMemoryEventBus
-func (imeb InMemoryEventBus) DeleteConsumer(topicID string, messageListenerID string) {
+func (imeb InMemoryEventBus) DeleteConsumer(topicID string, messageListenerID string) error {
 	imeb.topicRegistryMutex.Lock()
 	defer imeb.topicRegistryMutex.Unlock()
 
@@ -50,15 +53,16 @@ func (imeb InMemoryEventBus) DeleteConsumer(topicID string, messageListenerID st
 		}
 	}
 
+	return nil
 }
 
-// SendMessage published a message to all registered consumers listening to the same topicID on the same instance of
+// PublishMessage published a message to all registered consumers listening to the same topicID on the same instance of
 // InMemoryEventBus
-func (imeb InMemoryEventBus) SendMessage(message eventbus.Message) {
+func (imeb InMemoryEventBus) PublishMessage(message eventbus.Message) error {
 	listeners, ok := imeb.topicRegistry[message.Topic]
 
 	if !ok {
-		return
+		return nil
 	}
 
 	sentMessages := 0
@@ -66,21 +70,38 @@ func (imeb InMemoryEventBus) SendMessage(message eventbus.Message) {
 		listener.Handler(message)
 		sentMessages++
 	}
+
+	return nil
+}
+
+func (imeb InMemoryEventBus) SendMessage(message eventbus.Message) error {
+	listeners, ok := imeb.topicRegistry[message.Topic]
+
+	if !ok {
+		return nil
+	}
+
+	randomIndex := rand.Intn(len(listeners) - 1)
+	listeners[randomIndex].Handler(message)
+
+	return nil
 }
 
 // GetCacheValue gets the value from InMemoryEventBus' cache associated with the specified key
-func (imeb InMemoryEventBus) GetCacheValue(key string) interface{} {
+func (imeb InMemoryEventBus) GetCacheValue(key string) (interface{}, error) {
 	imeb.localCacheMutex.Lock()
 	defer imeb.localCacheMutex.Unlock()
 
-	return imeb.localCache[key]
+	return imeb.localCache[key], nil
 }
 
 // SetCacheValue updates the InMemoryEventBus' cache with the specified key value pair
-func (imeb InMemoryEventBus) SetCacheValue(key string, value interface{}) {
+func (imeb InMemoryEventBus) SetCacheValue(key string, value interface{}) error {
 	imeb.localCacheMutex.Lock()
 	defer imeb.localCacheMutex.Unlock()
 	imeb.localCache[key] = value
+
+	return nil
 }
 
 // GetEventBusID gets the event bus ID

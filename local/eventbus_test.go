@@ -2,17 +2,22 @@ package local
 
 import (
 	"fmt"
-	"github.com/AnthonyMBonafide/go-eventbus"
 	"log"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/AnthonyMBonafide/go-eventbus"
 )
 
 func TestCache(t *testing.T) {
 	eb := New()
 	eb.SetCacheValue("integer", 1)
-	result := eb.GetCacheValue("integer")
+	result, err := eb.GetCacheValue("integer")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
 	if 1 != result {
 		t.Fail()
 	}
@@ -37,7 +42,7 @@ func TestMessageHandler(t *testing.T) {
 		},
 	})
 
-	eb.SendMessage(eventbus.Message{
+	eb.PublishMessage(eventbus.Message{
 		MessageID: "TestMessage",
 		Topic:     "TestTopic",
 		Payload:   "TestPayload",
@@ -68,7 +73,7 @@ func TestRemoveConsumer(t *testing.T) {
 
 	eb.DeleteConsumer("TestTopic", "test-listener")
 
-	eb.SendMessage(eventbus.Message{
+	eb.PublishMessage(eventbus.Message{
 		MessageID: "TestMessage",
 		Topic:     "TestTopic",
 		Payload:   "TestPayload",
@@ -127,7 +132,7 @@ func BenchmarkInMemoryEventBus_SendMessage(b *testing.B) {
 	b.ResetTimer()
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		eb.SendMessage(eventbus.Message{
+		eb.PublishMessage(eventbus.Message{
 			Topic:     fmt.Sprintf("TestConsumer#%d", i),
 			MessageID: fmt.Sprintf("Message#%d", i),
 			Payload:   "Message",
